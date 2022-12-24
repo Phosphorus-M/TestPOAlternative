@@ -29,6 +29,7 @@ async fn main() {
     let mut test_routes = app.group("test");
     test_routes.resource("", TestController);
     test_routes.get("/:id", TestController::get_by_id);
+    test_routes.patch("/:id", TestController::patch);
     
     app.middleware(middleware::from_fn(tracing_middleware));
 
