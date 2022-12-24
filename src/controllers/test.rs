@@ -4,6 +4,7 @@ use graphul::{
     Context, IntoResponse, extract::Json,
 };
 use rbatis::sql::PageRequest;
+use rbdc::{datetime::{FastDateTime}};
 use serde_json::json;
 
 use crate::{entities::test::Tests, RB, middlewares::result_response::ErrorApps};
@@ -19,7 +20,7 @@ impl Resource for TestController {
             let Ok(tests) = tests else {
                 return ErrorApps::Unknown.into();
             };
-            (StatusCode::OK, Json(json!(tests))).into_response()
+            (StatusCode::OK, Json(tests)).into_response()
         } else {
             let Ok(page) = page.parse() else {
                 return ErrorApps::ParseIntError.into_response();
@@ -28,9 +29,23 @@ impl Resource for TestController {
             let Ok(tests) = tests else {
                 return ErrorApps::Unknown.into();
             };
-            (StatusCode::OK, Json(json!(tests))).into_response()
+            (StatusCode::OK, Json(tests)).into_response()
         }
 
+    }
+
+    async fn post(_ctx: Context) -> Response {
+        let mut value: Json<Tests> = match _ctx.payload().await {
+            Ok(data) => data,
+            Err(_) => return ErrorApps::JsonRejection.into_response()
+        };
+        value.0.created = Some(FastDateTime::now());
+        let insert_result = match Tests::insert(&mut RB.clone(), &value.0).await {
+            Ok(data) => data,
+            Err(_) => return ErrorApps::Unknown.into_response()
+        };
+        value.0.id = insert_result.last_insert_id.as_i64();
+        (StatusCode::CREATED, value).into_response()
     }
 }
 
