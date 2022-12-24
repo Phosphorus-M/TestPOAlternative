@@ -38,6 +38,8 @@ services:
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     env_file:
         # Ensure that the variables in .env match the same variables in devcontainer.json
         - .env
