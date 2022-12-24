@@ -10,7 +10,7 @@ use dotenv::dotenv;
 use graphul::{middleware, Graphul, http::Methods};
 use once_cell::sync::Lazy;
 use rbatis::Rbatis;
-use rbdc_pg::driver::PgDriver;
+use rbdc_mysql::driver::MysqlDriver;
 
 use crate::{
     middlewares::tracing::tracing_middleware, controllers::test::TestController,
@@ -39,7 +39,7 @@ async fn setup() {
     dotenv().ok();
     tracing_subscriber::fmt().init();
     // postgres connect info
-    let postgres_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    RB.init(PgDriver {}, &postgres_uri).unwrap();
+    let mariadb_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    RB.init(MysqlDriver {}, &mariadb_uri).unwrap();
     RB.try_acquire().await.unwrap();
 }
