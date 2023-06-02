@@ -5,10 +5,12 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-
+[workspace]
+members = [".", "migration"]
 
 
 [dependencies]
+migration = { path = "migration" } # depends on your needs
 dotenv = "0.15"
 env_logger = "0.10.0"
 serde = { version = "1.0.143", features = ["derive"] }

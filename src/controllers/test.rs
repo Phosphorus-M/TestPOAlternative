@@ -8,7 +8,7 @@ use graphul::{
 use sea_orm::{EntityTrait, QuerySelect, ActiveValue};
 use serde_json::json;
 
-use crate::{middlewares::result_response::ErrorApps, AppState, utils::adapters::page::PageAdapter, entities::tests::{Model, self}};
+use crate::{middlewares::result_response::ErrorApps, AppState, utils::adapters::page::PageAdapter, entities::test::{Model, self}};
 use crate::entities::prelude::Tests;
 
 pub struct TestController;
@@ -53,7 +53,7 @@ impl Resource<AppState> for TestController {
             Err(_) => return ErrorApps::JsonRejection.into_response()
         };
         value.0.created = Some(Utc::now().date_naive());
-        let test : tests::ActiveModel = value.0.clone().into();
+        let test : test::ActiveModel = value.0.clone().into();
         let insert_result = match Tests::insert(test).exec(&_ctx.state().db).await {
             Ok(data) => data,
             Err(_) => return ErrorApps::Unknown.into_response()
@@ -88,7 +88,7 @@ impl TestController {
         if value.created.is_some() || value.author_id.is_some() {
             return ErrorApps::FieldsAreNotAvailableToUpdate.into_response();
         }
-        let test_to_update = tests::ActiveModel{
+        let test_to_update = test::ActiveModel{
             id: ActiveValue::Unchanged(test_id),
             description: ActiveValue::Set(value.0.description),
             title: ActiveValue::Set(value.0.title),
@@ -104,7 +104,7 @@ impl TestController {
         let Ok(test_id) = _ctx.params("id").parse::<i32>() else {
             return ErrorApps::IdIsRequired.into_response();
         };
-        let test_to_delete : tests::ActiveModel = tests::ActiveModel {
+        let test_to_delete : test::ActiveModel = test::ActiveModel {
             id: ActiveValue::Set(test_id),
             deleted: ActiveValue::Set(Some(1)),
             ..Default:: default()
